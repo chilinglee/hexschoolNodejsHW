@@ -32,15 +32,26 @@ const reqListener = async (req, res) => {
     body += chunk;
   });
   if (req.url === '/posts' && req.method === 'GET') {
-    const data = await Post.find();
-    res.writeHead(200, headers);
-    res.write(
-      JSON.stringify({
-        status: 'success',
-        data,
-      })
-    );
-    res.end();
+    try {
+      const data = await Post.find();
+      res.writeHead(200, headers);
+      res.write(
+        JSON.stringify({
+          status: 'success',
+          data,
+        })
+      );
+      res.end();
+    } catch (error) {
+      res.headers(400, headers);
+      res.write(
+        JSON.stringify({
+          status: 'failed',
+          error,
+        })
+      );
+      res.end();
+    }
   } else if (req.url === '/post' && req.method === 'POST') {
     req.on('end', async () => {
       try {
@@ -93,16 +104,27 @@ const reqListener = async (req, res) => {
       }
     });
   } else if (req.url.startsWith('/post') && req.method === 'DELETE') {
-    const did = req.url.split('/').pop();
-    const dresult = await Post.findByIdAndDelete(did);
-    res.writeHead(200, headers);
-    res.write(
-      JSON.stringify({
-        status: 'success',
-        result: dresult,
-      })
-    );
-    res.end();
+    try {
+      const did = req.url.split('/').pop();
+      const dresult = await Post.findByIdAndDelete(did);
+      res.writeHead(200, headers);
+      res.write(
+        JSON.stringify({
+          status: 'success',
+          result: dresult,
+        })
+      );
+      res.end();
+    } catch (error) {
+      res.writeHead(400, headers);
+      res.write(
+        JSON.stringify({
+          status: 'failed',
+          error,
+        })
+      );
+      res.end();
+    }
   } else if (req.methods === 'OPTIONS') {
     //一些驗證機制
     //一些驗證機制
